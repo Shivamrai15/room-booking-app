@@ -60,14 +60,25 @@
             margin-top: 1rem;
             padding: 10px;
         }
+        .content {
+            display: flex;
+            flex-direction: column;
+            row-gap: 14px;
+        }
     </style>
 </head>
 <body>
     <form class="form" action="/book-room", method="post" >
         <h2>Book Room</h2>
-        <div>
-            <label for="booking-date">Select Date</label>
-            <input type="date" id="booking-date" name="booking-date" required />
+        <div class="content" >
+            <div>
+                <label for="booking-date">Select Date</label>
+                <input type="date" id="booking-date" name="booking-date" required />
+            </div>
+            <div>
+                <label for="booking-time">Select Time</label>
+                <input type="time" id="booking-time" name="booking-time" required />
+            </div>
             <button class="search_btn" type="button" onclick="checkAvailability()" >
                 Check room availability
             </button>

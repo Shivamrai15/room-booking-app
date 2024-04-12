@@ -28,12 +28,14 @@ async def root( request : Request ) :
 
     user_token = validateFirebaseToken(id_token)
 
+    rooms, error_message = await getRooms()
+
     if not user_token:
-        return templets.TemplateResponse('main.html', { 'request' : request, 'user_token' : None , 'error_message' : error_message, 'user_info': None })
+        return templets.TemplateResponse('main.html', { 'request' : request, 'user_token' : None , 'error_message' : error_message, 'user_info': None, "rooms" : rooms })
     
     user = getUser(user_token)
-    rooms, error_message = getRoomsByEmail(user_token["email"])
-    return templets.TemplateResponse('main.html', { 'request' : request, 'user_token' : user_token , 'error_message' : error_message, 'user_info': user.get(), "rooms" : rooms })
+    bookings, error_message = await getBookingsByEmail(user_token["email"])
+    return templets.TemplateResponse('main.html', { 'request' : request, 'user_token' : user_token , 'error_message' : error_message, 'user_info': user.get(), "rooms" : rooms, "bookings" : bookings })
 
 
 
@@ -60,11 +62,11 @@ def validateFirebaseToken(id_token):
     
     return  user_token
 
-def getRoomsByEmail( email: str ):
+async def getRooms( ):
     error_message = ""
     rooms = []
     try : 
-        ref = firestore_db.collection('rooms').where("createdBy", "==", email)
+        ref = firestore_db.collection('rooms')
         snapshot = ref.get()
         for room in snapshot:
             rooms.append(
@@ -72,13 +74,40 @@ def getRoomsByEmail( email: str ):
                     "id" : room.id,
                     "createdAt" : room.create_time,
                     "name" : room.get("name"),
-                    "number" : room.get("number")
+                    "number" : room.get("number"),
+                    "createdBy" : room.get("createdBy")
 
                 }
             )
     except :
         error_message = "Internal server error"
     return rooms, error_message
+
+async def getBookingsByEmail( email: str ):
+    error_message = ""
+    bookings = []
+    try:
+        ref = firestore_db.collection('bookings').where("booked_by", "==", email)
+        snapshot = ref.get()
+        for booking in snapshot:
+            room = firestore_db.collection('rooms').document(booking.get("roomId")).get().to_dict()
+            bookings.append(
+                {
+                    "id" : booking.id,
+                    "booked_by" : booking.get("booked_by"),
+                    "date" : datetime.fromtimestamp(booking.get("booking_date")).date(),
+                    "room" : room.get("name"),
+                    "number" : room.get("number"),
+                    "time" : booking.get("booking_time")
+                }
+            )
+    except:
+        error_message = "Internal server error"
+    
+    if len(bookings) == 0:
+        return None, error_message
+
+    return bookings, error_message 
 # -------------------------------------------------------------------------------------------------#
 
 
@@ -136,6 +165,10 @@ async def deleteRoom( request : Request, roomId: str ):
     if not user_token:
         raise HTTPException(status_code=400, detail="User not alllowed to delete the room")
     
+    bookings = firestore_db.collection("bookings").where("roomId", "==", roomId).get()
+    if len(bookings) > 0:
+        raise HTTPException(status_code=400, detail="User not alllowed to delete the room")
+        # return JSONResponse({ "success" : False, "details": "Deleting this room is prohibited as it contains the bookings" }, status_code=401)
     room = firestore_db.collection("rooms").document(roomId)
     
     if ( user_token["email"] != room.get().to_dict().get("createdBy")) :
@@ -183,6 +216,7 @@ async def checkRoomAvailability(request: Request, date:str):
             available_rooms.append({"id": room_id, "name": f"{room_data.get('name')} {room_data.get('number')}"})
 
     return JSONResponse(available_rooms, status_code=200)
+# -------------------------------------------------------------------------------------------------#
 
 
 
@@ -194,11 +228,55 @@ async def bookRoom(request: Request):
         return RedirectResponse('/')
     
     form = await request.form()
+
     booking_data = {
         "booked_by" : user_token["email"],
         "booking_date" : datetime.strptime(form["booking-date"], "%Y-%m-%d").timestamp(),
+        "booking_time" : form["booking-time"],
         "roomId" : form["select-room"]
     }
 
     firestore_db.collection("bookings").document().set(booking_data)
     return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
+# -------------------------------------------------------------------------------------------------#
+
+
+@app.delete("/delete-booking/{bookingId}")
+async def deleteBooking( request : Request, bookingId: str ):
+    id_token =  request.cookies.get("token")
+
+    user_token = validateFirebaseToken(id_token)
+    if not user_token:
+        raise HTTPException(status_code=400, detail="User not alllowed to delete the booking")
+    
+    booking = firestore_db.collection("bookings").document(bookingId)
+    
+    if ( user_token["email"] != booking.get().to_dict().get("booked_by")) :
+        raise HTTPException(status_code=400, detail="User not alllowed to delete the booking")
+    
+    booking.delete()
+    return JSONResponse({ "success" : True }, status_code=200)
+# -------------------------------------------------------------------------------------------------#
+
+
+@app.get("/room/bookings/{roomId}", response_class=HTMLResponse)
+async def roomDetails(request: Request, roomId:str):
+    bookings = []
+    booking_obj = firestore_db.collection('bookings').where("roomId", "==", roomId).get()
+    
+    if len(booking_obj) == 0 :
+        return templets.TemplateResponse('bookings.html', { 'request' : request, 'error' : None, 'bookings': None})
+
+    for booking in booking_obj:
+        bookings.append(
+                {
+                    "id" : booking.id,
+                    "booked_by" : booking.get("booked_by"),
+                    "date" : datetime.fromtimestamp(booking.get("booking_date")).date(),
+                    "time" : booking.get("booking_time"),
+                    "booked_by" : booking.get("booked_by")
+                }
+            )
+    return templets.TemplateResponse('bookings.html', { 'request' : request, 'error' : None, 'bookings': bookings})
+
+# -------------------------------------------------------------------------------------------------#

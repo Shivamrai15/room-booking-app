@@ -65,6 +65,7 @@
             padding: 20px;
             width: 200px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
         }
         .delete-btn {
             width: 100%;
@@ -78,6 +79,10 @@
             padding: 10px;
             margin-top: 14px;
         }
+        a {
+            text-decoration: none;
+            color: #3a3a3a;
+        }
     </style>
 </head>
 <body>
@@ -89,22 +94,44 @@
             LogOut 
         </button>
     </div>
-    {% if user_token %}
-        <div class="room-container">
-            <h2>Your Rooms</h2>
-            <div id="room-cards">
-                {% for room in rooms %}
-                    <div class="room-card">
+    <div class="room-container">
+        <h2>Rooms</h2>
+        <div id="room-cards">
+            {% for room in rooms %}
+                <div class="room-card">
+                    <a href="/room/bookings/{{ room.id }}" >
                         <h3>{{ room.name }}</h3>
                         <p>Room Number: {{ room.number }}</p>
                         <p>Created At: {{ room.createdAt }}</p>
-                        <button class="delete-btn" onclick="deleteRoom('{{ room.id }}')" >
+                    </a>
+                    {% if user_token.email==room.createdBy %}
+                        <button class="delete-btn" type="button" onclick="deleteRoom('{{ room.id }}')"  >
                             Delete Room
                         </button>
-                    </div>
-                {% endfor %}
-            </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
         </div>
+    </div>
+    {% if user_token %}
+        {% if bookings %}
+            <div class="room-container">
+                <h2>Your Bookings</h2>
+                <div id="room-cards">
+                    {% for booking in bookings %}
+                        <div class="room-card">
+                            <h3>Room Name: {{ booking.room }}</h3>
+                            <p>Room Number: {{ booking.number }}</p>
+                            <p>Booking: {{ booking.date }}</p>
+                            <p>Time: {{ booking.time }}</p>
+                            <button class="delete-btn" onclick="deleteBooking('{{ booking.id }}')" >
+                                Delete Booking
+                            </button>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
     {% endif %}
     <script>
         function deleteRoom(roomId) {
@@ -117,6 +144,25 @@
                         location.reload();
                     } else {
                         console.error('Failed to delete room');
+                        alert("This room cannot be removed because there are existing bookings associated with it.")
+                    }
+                })
+                .catch((err) => {
+                    console.error('Error:', err)
+                    alert("This room cannot be removed because there are existing bookings associated with it.")
+                });
+            }
+        }
+        function deleteBooking(bookingId) {
+            if (confirm("Are you sure to delete this booking?")) {
+                fetch(`/delete-booking/${bookingId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        console.error('Failed to delete booking');
                     }
                 })
                 .catch(err => console.error('Error:', err));
