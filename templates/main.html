@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}"> -->
+    <script type="module" src="{{ url_for('static', path='/firebase-logout.js') }}" ></script>
+    <style>
+        *{
+            padding: 0;
+            margin: 0;
+        }
+        .nav {
+            display: flex;
+            justify-content: end;
+            align-items: center;
+            column-gap: 10px;
+            padding: 6px;
+            padding-left: 16px;
+            padding-right: 16px;
+            border-bottom: 1px solid gray;
+        }
+        .primary-btn {
+            width: 100%;
+            max-width: fit-content;
+            background: #111;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 15px;
+        }
+        .primary-link {
+            width: 100%;
+            max-width: fit-content;
+            background: #111;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            padding: 15px;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a class="primary-link" href="/login" hidden="true" id="login-href" > Login </a>
+        <a class="primary-link" href="/create-room" id="room-href" > Create Room </a>
+        <button class="primary-btn" id="sign-out" hidden="true" >
+            LogOut 
+        </button>
+    </div>
+</body>
+</html>

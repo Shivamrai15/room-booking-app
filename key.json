@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "lunar-implement-416715",
+  "private_key_id": "675043acb4fa5dfc060913aafaf506600aa067a3",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCubt+P0ohO/wx9\niyh/rE379D6SEhNtIAInK6k8cioSKnwrEdEYuW755bU2h3yIfM+R1vj7DpekT+Rz\n62vGgg8M2wx/Z/BpeaO4Kl4SHMMZ77JZUod/xQKk4pS/L9LuHZjXJcSJfsQZbQWh\n8YlMPbky5CfNOhCVBp4O/4vzrO519C/1Sg65uT6/iwLkP5Nhc2s8ZM9iiCc+4FJD\nclb2+idSfLKXwPQCsAndNl1iFiaMBQbuZXQNZ66BVTlsjc39JeGwB33r6qZR7+gO\nF9UneAVOgDSO7Of/mT51IOhE1+a1UGiCivdUYjlhf1p9u0wMfDMbsuqyMrpFiLmw\nrq+xD0fTAgMBAAECggEALFn9lwyRYwCflOZGqFvPwlHifPKCpPsAASStVbSzdMX/\np1XS5CX2DS02a8R8ShnuDydpTDB0Jy+3JzBDSYh1OjASF+z+KFto4OFI5PMSOmyD\nXQnKcRbPKsx/xLLsv2WgIIg2Vj14r/xT8869ubhx9/oiEqECaVny415fn9gnE69U\nPIgqtN1EEo6I6I5ipqdWVyzHkJwog0UL2ULtLu3z+UqDpG/57B5+lqQ4IhwO/pR7\nu3GdZVVq3urpoQPGL3IRi4TTqLP049lT8tNuQxcu+3aEa1LtOorlyVonbI01tRBt\njJS+pLn4DfIbtVu1/p5r8oyVd/4ofmna1W6uPd47RQKBgQDtDIPWOmBQmFktBZim\n9jMdD3ZBRHdjX6UtKQbmxED2SNmApiUbjS7TLQeJNaVdD5BdgJXhzt3IYcM7qTlJ\nHxw+s1Q3zO3yKlTTxMxNQGzeTZtYjDM6Pl4ZjSP4QtpyTsntjWqMVHvx1tPnsPWU\nOjKcQy1dD0Gda1CI5In7SsbfhwKBgQC8YNo0RaznrDSGQ+9s9buT2J5Js0wmCsqr\n0tbw7xYH+fucFkFUUjHA4CYfGeb65htaNg+nB/b67WARmP/GKf7l7AiS45uQBDTN\nwLZ+bFsrQ7MbwPtofdbzKECFvzp62zw+tDqpfRz/c9aCIfIStBHj1G9G2cUo24Ev\nCLIzweRwVQKBgEHuXSzUh71i4kq3Z8HocEcA6e81T89/5r0s0BKXO0pE8NnrXB7R\nodhyicoL9bZwgcK/5PAtTVpSdq69XoWL9Zsq3Z23jebxBy7vabOC28To6PAz7nug\npSOOMhb24TMx3tAHqT7msKKPEdk7StKzbSgxNwjPGXzjQD8S8Z3HKpE5AoGAaH7J\nS+nCihjKYhhZPfXqAY9N7tAY05l0529jb+8QJ4iR+/mUb7PQiY9NVj9GE7OFRLts\nX1lZtcPrYJegekpdbSlLcD/10SOkLuZR1TtCL3O0bRbV3xa/H88aS5bSV8g5WQcc\n61vNtB6LxVATOjDNI7Z5q7GtXoa02GRYhcFueKkCgYBYtYYRZWyLBX6V6G5G+0zT\nQImAPF7D8iM8T4kTNVpX7ODIl//VMdmS9uXswSVusDQQzsDxXU4fRYpqOTYQzWh8\nG0R9sl9LEe+KO2RNr3HS7z7ywKXoBstqHZH/YymMZOMhLBtUA7zmVERnINjDGj+N\n4YfTcS0IROAMxQkKkbM7lA==\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-ncopt@lunar-implement-416715.iam.gserviceaccount.com",
+  "client_id": "106728710966003901107",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-ncopt%40lunar-implement-416715.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
