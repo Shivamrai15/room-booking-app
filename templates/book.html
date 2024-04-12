@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Room</title>
+    <style>
+        *{
+            padding: 0;
+            margin: 0;
+        }
+        body {
+            height: 90vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            color: rgb(45, 45, 45);
+            font-family: Georgia, 'Times New Roman', Times, serif;
+        }
+        .form {
+            max-width: 24rem;
+            width: 100%;
+            padding: 2rem;
+            border: 1px solid gray;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            row-gap: 1rem;
+        }
+        .primary-inp {
+            height: 1.5rem;
+            width: 100%;
+            border: none;
+            border-bottom: 1px solid gray;
+            outline: none;
+            margin-top: 5px;
+            margin-bottom: 10px;
+        }
+        .primary-btn {
+            width: 100%;
+            height: 2.5rem;
+            background: #111;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .search_btn {
+            width: 100%;
+            background: #07ab30;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            margin-top: 1rem;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <form class="form" action="/book-room", method="post" >
+        <h2>Book Room</h2>
+        <div>
+            <label for="booking-date">Select Date</label>
+            <input type="date" id="booking-date" name="booking-date" required />
+            <button class="search_btn" type="button" onclick="checkAvailability()" >
+                Check room availability
+            </button>
+        </div>
+        <select name="select-room" id="select-room">
+            <option value="0" disabled >Select Room:</option>
+            <!-- <option value="IwyC7WukHu7z8xy86SOs">IwyC7WukHu7z8xy86SOs</option> -->
+        </select>
+        <button class="primary-btn" type="submit">
+            Book Room
+        </button>
+    </form>
+    <script>
+        function checkAvailability() {
+            var bookingDate = document.getElementById('booking-date').value;
+
+            fetch(`/available-rooms/${bookingDate}`)
+            .then(response => response.json())
+            .then(data => {
+                var selectRoomDropdown = document.getElementById('select-room');
+                selectRoomDropdown.innerHTML = '';
+
+                var defaultOption = document.createElement('option');
+                defaultOption.value = '0';
+                defaultOption.text = 'Select Room:';
+                defaultOption.disabled = true;
+                selectRoomDropdown.appendChild(defaultOption);
+
+                data.forEach(room => {
+                    var option = document.createElement('option');
+                    option.value = room.id;
+                    option.text = room.name;
+                    selectRoomDropdown.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>

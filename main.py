@@ -146,3 +146,59 @@ async def deleteRoom( request : Request, roomId: str ):
     
 
 # -------------------------------------------------------------------------------------------------#
+
+
+@app.get("/book-room", response_class=HTMLResponse)
+async def bookRoom(request: Request):
+    id_token =  request.cookies.get("token")
+
+    user_token = validateFirebaseToken(id_token)
+    if not user_token:
+        return RedirectResponse('/')
+    return templets.TemplateResponse('book.html', { 'request' : request, 'error' : None })
+
+
+# -------------------------------------------------------------------------------------------------#
+@app.get("/available-rooms/{date}", response_class=JSONResponse)
+async def checkRoomAvailability(request: Request, date:str):
+    id_token =  request.cookies.get("token")
+
+    user_token = validateFirebaseToken(id_token)
+    if not user_token:
+        return RedirectResponse('/')
+    
+    booked_roomIds = []
+    formatted_date = datetime.strptime(date, "%Y-%m-%d").timestamp()
+    bookings = firestore_db.collection('bookings').where("booking_date", "==", formatted_date).get()
+    for booked_rooms in bookings:
+        booked_roomIds.append(booked_rooms.get("roomId"))
+    
+    available_rooms = []
+    all_rooms = firestore_db.collection("rooms").get()
+
+    for room_doc in all_rooms:
+        room_data = room_doc.to_dict()
+        room_id = room_doc.id
+        if room_id not in booked_roomIds:
+            available_rooms.append({"id": room_id, "name": f"{room_data.get('name')} {room_data.get('number')}"})
+
+    return JSONResponse(available_rooms, status_code=200)
+
+
+
+@app.post("/book-room", response_class=HTMLResponse)
+async def bookRoom(request: Request):
+    id_token =  request.cookies.get("token")
+    user_token = validateFirebaseToken(id_token)
+    if not user_token:
+        return RedirectResponse('/')
+    
+    form = await request.form()
+    booking_data = {
+        "booked_by" : user_token["email"],
+        "booking_date" : datetime.strptime(form["booking-date"], "%Y-%m-%d").timestamp(),
+        "roomId" : form["select-room"]
+    }
+
+    firestore_db.collection("bookings").document().set(booking_data)
+    return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
