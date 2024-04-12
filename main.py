@@ -126,3 +126,23 @@ async def postCreateRoom(request : Request):
     return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
     
 # -------------------------------------------------------------------------------------------------#
+
+
+@app.delete("/delete-room/{roomId}")
+async def deleteRoom( request : Request, roomId: str ):
+    id_token =  request.cookies.get("token")
+
+    user_token = validateFirebaseToken(id_token)
+    if not user_token:
+        raise HTTPException(status_code=400, detail="User not alllowed to delete the room")
+    
+    room = firestore_db.collection("rooms").document(roomId)
+    
+    if ( user_token["email"] != room.get().to_dict().get("createdBy")) :
+        raise HTTPException(status_code=400, detail="User not alllowed to delete the room")
+    
+    room.delete()
+    return JSONResponse({ "success" : True }, status_code=200)
+    
+
+# -------------------------------------------------------------------------------------------------#

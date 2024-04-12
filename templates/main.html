@@ -66,6 +66,18 @@
             width: 200px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+        .delete-btn {
+            width: 100%;
+            background: #111;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 10px;
+            margin-top: 14px;
+        }
     </style>
 </head>
 <body>
@@ -85,10 +97,30 @@
                         <h3>{{ room.name }}</h3>
                         <p>Room Number: {{ room.number }}</p>
                         <p>Created At: {{ room.createdAt }}</p>
+                        <button class="delete-btn" onclick="deleteRoom('{{ room.id }}')" >
+                            Delete Room
+                        </button>
                     </div>
                 {% endfor %}
             </div>
         </div>
     {% endif %}
+    <script>
+        function deleteRoom(roomId) {
+            if (confirm("Are you sure to delete this room?")) {
+                fetch(`/delete-room/${roomId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        console.error('Failed to delete room');
+                    }
+                })
+                .catch(err => console.error('Error:', err));
+            }
+        }
+    </script>
 </body>
 </html>
