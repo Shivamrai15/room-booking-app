@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Room</title>
+    <style>
+        *{
+            padding: 0;
+            margin: 0;
+        }
+        body {
+            height: 90vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            color: rgb(45, 45, 45);
+            font-family: Georgia, 'Times New Roman', Times, serif;
+        }
+        .primary-inp {
+            height: 1.5rem;
+            width: 100%;
+            border: none;
+            border-bottom: 1px solid gray;
+            outline: none;
+            margin-top: 5px;
+            margin-bottom: 10px;
+        }
+        .primary-btn {
+            width: 100%;
+            height: 2.5rem;
+            background: #111;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            margin-top: 1rem;
+        }
+        .form {
+            max-width: 24rem;
+            width: 100%;
+            border: 1px solid gray;
+            border-radius: 10px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            row-gap: 1rem;
+        }
+        .error {
+            background-color: rgba(222, 65, 65, 0.297);
+            color: red;
+            text-align: center;
+            width: fit-content;
+        }
+    </style>
+</head>
+<body>
+    {% if error %}
+        <div class="error" >{{ error }}</div>
+    {% endif %}
+    <form class="form" action="/create-room" method="post" >
+        <h2>Create Room</h2>
+        <div>
+            <label for="room">Room Name</label>
+            <input class="primary-inp" type="text" id="room" name="room" type="text" required />
+        </div>
+        <div>
+            <label for="room-number">Room Number</label>
+            <input type="number" class="primary-inp" id="room-number" name="room-number" type="text" required />
+        </div>
+        <button class="primary-btn" type="submit">
+            Create Room
+        </button>
+    </form>
+</body>
+</html>

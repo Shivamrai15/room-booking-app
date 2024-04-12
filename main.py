@@ -32,7 +32,8 @@ async def root( request : Request ) :
         return templets.TemplateResponse('main.html', { 'request' : request, 'user_token' : None , 'error_message' : error_message, 'user_info': None })
     
     user = getUser(user_token)
-    return templets.TemplateResponse('main.html', { 'request' : request, 'user_token' : user_token , 'error_message' : error_message, 'user_info': user.get(), })
+    rooms, error_message = getRoomsByEmail(user_token["email"])
+    return templets.TemplateResponse('main.html', { 'request' : request, 'user_token' : user_token , 'error_message' : error_message, 'user_info': user.get(), "rooms" : rooms })
 
 
 
@@ -59,6 +60,27 @@ def validateFirebaseToken(id_token):
     
     return  user_token
 
+def getRoomsByEmail( email: str ):
+    error_message = ""
+    rooms = []
+    try : 
+        ref = firestore_db.collection('rooms').where("createdBy", "==", email)
+        snapshot = ref.get()
+        for room in snapshot:
+            rooms.append(
+                {
+                    "id" : room.id,
+                    "createdAt" : room.create_time,
+                    "name" : room.get("name"),
+                    "number" : room.get("number")
+
+                }
+            )
+    except :
+        error_message = "Internal server error"
+    return rooms, error_message
+# -------------------------------------------------------------------------------------------------#
+
 
 @app.get("/login", response_class=HTMLResponse)
 async def login(request : Request):
@@ -70,3 +92,37 @@ async def login(request : Request):
     return RedirectResponse('/')
 # -------------------------------------------------------------------------------------------------#
 
+
+
+@app.get("/create-room", response_class=HTMLResponse )
+async def createRoom(request : Request):
+    id_token =  request.cookies.get("token")
+
+    user_token = validateFirebaseToken(id_token)
+    if not user_token:
+        return RedirectResponse('/')
+    return templets.TemplateResponse('room.html', { 'request' : request, 'error' : None })
+# -------------------------------------------------------------------------------------------------#
+
+
+@app.post("/create-room", response_class=HTMLResponse)
+async def postCreateRoom(request : Request):
+    id_token = request.cookies.get("token")
+    user_token = validateFirebaseToken(id_token)
+    if not user_token:
+        return RedirectResponse('/')
+
+    form = await request.form()
+
+    if (not form['room']) or (not form['room-number']):
+        return templets.TemplateResponse('room.html', { 'request' : request, 'error' : "Room name and room number required" })
+
+    room_data = {
+        "name" : form["room"],
+        "number" : int(form["room-number"]),
+        "createdBy" : user_token["email"],
+    }
+    room = firestore_db.collection('rooms').document().set(room_data)
+    return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
+    
+# -------------------------------------------------------------------------------------------------#
