@@ -168,7 +168,6 @@ async def deleteRoom( request : Request, roomId: str ):
     bookings = firestore_db.collection("bookings").where("roomId", "==", roomId).get()
     if len(bookings) > 0:
         raise HTTPException(status_code=400, detail="User not alllowed to delete the room")
-        # return JSONResponse({ "success" : False, "details": "Deleting this room is prohibited as it contains the bookings" }, status_code=401)
     room = firestore_db.collection("rooms").document(roomId)
     
     if ( user_token["email"] != room.get().to_dict().get("createdBy")) :
@@ -279,4 +278,48 @@ async def roomDetails(request: Request, roomId:str):
             )
     return templets.TemplateResponse('bookings.html', { 'request' : request, 'error' : None, 'bookings': bookings})
 
+# -------------------------------------------------------------------------------------------------#
+
+@app.get("/update-booking/{bookingId}", response_class=HTMLResponse)
+async def updateBooking(request : Request, bookingId : str):
+    id_token =  request.cookies.get("token")
+
+    user_token = validateFirebaseToken(id_token)
+    if not user_token:
+        raise HTTPException(status_code=400, detail="User not alllowed to edit the booking")
+
+    data = firestore_db.collection('bookings').document(bookingId).get().to_dict()
+    room = firestore_db.collection('rooms').document(data.get('roomId')).get()
+    formatted_data = {
+        'date' : datetime.fromtimestamp(data.get("booking_date")).date(),
+        'time' : data.get("booking_time"),
+        'room' : f'{room.to_dict().get("name")} {room.to_dict().get("number")}',
+        'roomId' : room.id,
+        'id' : bookingId
+    }
+
+    return templets.TemplateResponse('update.html', { 'request' : request, 'error' : None, "data": formatted_data })
+# -------------------------------------------------------------------------------------------------#
+
+
+@app.post("/update-booking/{bookingId}", response_class=RedirectResponse)
+async def updateBooking(request : Request, bookingId : str):
+    id_token =  request.cookies.get("token")
+
+    user_token = validateFirebaseToken(id_token)
+    if not user_token:
+        raise HTTPException(status_code=400, detail="User not alllowed to edit the booking")
+    
+    form = await request.form()
+
+    booking_data = {
+        "booked_by" : user_token["email"],
+        "booking_date" : datetime.strptime(form["booking-date"], "%Y-%m-%d").timestamp(),
+        "booking_time" : form["booking-time"],
+        "roomId" : form["select-room"]
+    }
+
+    booking = firestore_db.collection('bookings').document(bookingId)
+    booking.set(booking_data)
+    return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
 # -------------------------------------------------------------------------------------------------#

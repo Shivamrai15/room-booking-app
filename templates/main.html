@@ -79,10 +79,23 @@
             padding: 10px;
             margin-top: 14px;
         }
+        .edit-btn {
+            width: 100%;
+            background: #01b628;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 10px;
+            margin-top: 14px;
+        }
         a {
             text-decoration: none;
             color: #3a3a3a;
         }
+
     </style>
 </head>
 <body>
@@ -124,6 +137,9 @@
                             <p>Room Number: {{ booking.number }}</p>
                             <p>Booking: {{ booking.date }}</p>
                             <p>Time: {{ booking.time }}</p>
+                            <form action="/update-booking/{{ booking.id }}" method="get">
+                                <button class="edit-btn" type="submit" >Edit Booking</button>
+                            </form>
                             <button class="delete-btn" onclick="deleteBooking('{{ booking.id }}')" >
                                 Delete Booking
                             </button>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book Room</title>
+    <title>Update Booking</title>
     <style>
         *{
             padding: 0;
@@ -68,26 +68,28 @@
     </style>
 </head>
 <body>
-    <form class="form" action="/book-room", method="post" >
-        <h2>Book Room</h2>
+    <form class="form" action="/update-booking/{{ data.id }}", method="post" >
+        <h2>Update Booking</h2>
         <div class="content" >
             <div>
                 <label for="booking-date">Select Date</label>
-                <input type="date" id="booking-date" name="booking-date" required onchange="onChange()" />
+                <input type="date" id="booking-date" name="booking-date" value="{{data.date}}" onchange="onChange()" required />
             </div>
             <div>
                 <label for="booking-time">Select Time</label>
-                <input type="time" id="booking-time" name="booking-time" required />
+                <input type="time" id="booking-time" name="booking-time" value="{{data.time}}" required />
             </div>
             <button class="search_btn" type="button" onclick="checkAvailability()" >
                 Check room availability
             </button>
         </div>
         <select name="select-room" id="select-room">
-            <option value="0" disabled >Select Room:</option>
+            {% if data %}
+                <option value="{{data.roomId}}" >{{data.room}}</option>
+            {% endif %}         
         </select>
         <button class="primary-btn" type="submit">
-            Book Room
+            Update Room
         </button>
     </form>
     <script>
