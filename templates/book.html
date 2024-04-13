@@ -70,14 +70,68 @@
 <body>
     <form class="form" action="/book-room", method="post" >
         <h2>Book Room</h2>
-        <div class="content" >
+        <div class="content">
             <div>
                 <label for="booking-date">Select Date</label>
                 <input type="date" id="booking-date" name="booking-date" required onchange="onChange()" />
             </div>
             <div>
-                <label for="booking-time">Select Time</label>
-                <input type="time" id="booking-time" name="booking-time" required />
+                <label for="booking-start">Select Enty Time</label>
+                    <select id="booking-start" name="booking-start" onchange="onChange()" >
+                        <option value="00">00:00</option>
+                        <option value="01">01:00</option>
+                        <option value="02">02:00</option>
+                        <option value="03">03:00</option>
+                        <option value="04">04:00</option>
+                        <option value="05">05:00</option>
+                        <option value="06">06:00</option>
+                        <option value="07">07:00</option>
+                        <option value="08">08:00</option>
+                        <option value="09">09:00</option>
+                        <option value="10">10:00</option>
+                        <option value="11">11:00</option>
+                        <option value="12">12:00</option>
+                        <option value="13">13:00</option>
+                        <option value="14">14:00</option>
+                        <option value="15">15:00</option>
+                        <option value="16">16:00</option>
+                        <option value="17">17:00</option>
+                        <option value="18">18:00</option>
+                        <option value="19">19:00</option>
+                        <option value="20">20:00</option>
+                        <option value="21">21:00</option>
+                        <option value="22">22:00</option>
+                        <option value="23">23:00</option>
+                    </select>
+            </div>
+            <div>
+                <label for="booking-end">Select Checkout Time</label>
+                    <select id="booking-end" name="booking-end" onchange="onChange()" >
+                        <option value="00">00:00</option>
+                        <option value="01">01:00</option>
+                        <option value="02">02:00</option>
+                        <option value="03">03:00</option>
+                        <option value="04">04:00</option>
+                        <option value="05">05:00</option>
+                        <option value="06">06:00</option>
+                        <option value="07">07:00</option>
+                        <option value="08">08:00</option>
+                        <option value="09">09:00</option>
+                        <option value="10">10:00</option>
+                        <option value="11">11:00</option>
+                        <option value="12">12:00</option>
+                        <option value="13">13:00</option>
+                        <option value="14">14:00</option>
+                        <option value="15">15:00</option>
+                        <option value="16">16:00</option>
+                        <option value="17">17:00</option>
+                        <option value="18">18:00</option>
+                        <option value="19">19:00</option>
+                        <option value="20">20:00</option>
+                        <option value="21">21:00</option>
+                        <option value="22">22:00</option>
+                        <option value="23">23:00</option>
+                    </select>
             </div>
             <button class="search_btn" type="button" onclick="checkAvailability()" >
                 Check room availability
@@ -103,8 +157,10 @@
         }
         function checkAvailability() {
             var bookingDate = document.getElementById('booking-date').value;
+            var enrtyTime = document.getElementById("booking-start").value;
+            var checkoutTime = document.getElementById("booking-end").value
 
-            fetch(`/available-rooms/${bookingDate}`)
+            fetch(`/available-rooms/${bookingDate}/${enrtyTime}/${checkoutTime}`)
             .then(response => response.json())
             .then(data => {
                 var selectRoomDropdown = document.getElementById('select-room');

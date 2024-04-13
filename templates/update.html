@@ -76,8 +76,51 @@
                 <input type="date" id="booking-date" name="booking-date" value="{{data.date}}" onchange="onChange()" required />
             </div>
             <div>
-                <label for="booking-time">Select Time</label>
-                <input type="time" id="booking-time" name="booking-time" value="{{data.time}}" required />
+                <label for="booking-start">Select Enty Time</label>
+                    <select id="booking-start" name="booking-start" onchange="onChange()" >
+                        {% for time in range(24) %}
+                            {% if time < 10 %}
+                                {% if time == data.start %}
+                                    <option value="0{{time}}" selected >0{{time}}:00</option>
+                                {% endif %}
+                                {% if time != data.start %}
+                                    <option value="0{{time}}">0{{time}}:00</option>
+                                {% endif %}
+                            {% endif %}
+                            {% if time >= 10 %}
+                                {% if time == data.start %}
+                                    <option value="{{time}}" selected >{{time}}:00</option>
+                                {% endif %}
+                                {% if time != data.start %}
+                                    <option value="{{time}}">{{time}}:00</option>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                      
+                    </select>
+            </div>
+            <div>
+                <label for="booking-end">Select Checkout Time</label>
+                    <select id="booking-end" name="booking-end" onchange="onChange()" >
+                        {% for time in range(24) %}
+                            {% if time < 10 %}
+                                {% if time == data.end %}
+                                    <option value="0{{time}}" selected >0{{time}}:00</option>
+                                {% endif %}
+                                {% if time != data.end %}
+                                    <option value="0{{time}}">0{{time}}:00</option>
+                                {% endif %}
+                            {% endif %}
+                            {% if time >= 10 %}
+                                {% if time == data.end %}
+                                    <option value="{{time}}" selected >{{time}}:00</option>
+                                {% endif %}
+                                {% if time != data.end %}
+                                    <option value="{{time}}">{{time}}:00</option>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    </select>
             </div>
             <button class="search_btn" type="button" onclick="checkAvailability()" >
                 Check room availability
@@ -105,8 +148,10 @@
         }
         function checkAvailability() {
             var bookingDate = document.getElementById('booking-date').value;
+            var enrtyTime = document.getElementById("booking-start").value;
+            var checkoutTime = document.getElementById("booking-end").value
 
-            fetch(`/available-rooms/${bookingDate}`)
+            fetch(`/available-rooms/${bookingDate}/${enrtyTime}/${checkoutTime}`)
             .then(response => response.json())
             .then(data => {
                 var selectRoomDropdown = document.getElementById('select-room');

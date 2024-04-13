@@ -161,8 +161,8 @@
                         <div class="room-card">
                             <h3>Room Name: {{ booking.room }}</h3>
                             <p>Room Number: {{ booking.number }}</p>
-                            <p>Booking: {{ booking.date }}</p>
-                            <p>Time: {{ booking.time }}</p>
+                            <p>Entry Time: {{ booking.start }}:00</p>
+                            <p>Checkout Time: {{ booking.end }}:00</p>
                         </div>
                     {% endfor %}
                 </div>
@@ -180,7 +180,8 @@
                             <h3>Room Name: {{ booking.room }}</h3>
                             <p>Room Number: {{ booking.number }}</p>
                             <p>Booking: {{ booking.date }}</p>
-                            <p>Time: {{ booking.time }}</p>
+                            <p>Entry Time: {{ booking.start }}:00</p>
+                            <p>Checkout Time: {{ booking.end }}:00</p>
                             <form action="/update-booking/{{ booking.id }}" method="get">
                                 <button class="edit-btn" type="submit" >Edit Booking</button>
                             </form>

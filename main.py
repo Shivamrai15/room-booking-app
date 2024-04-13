@@ -89,7 +89,8 @@ async def getBookingsOfSpecificRoom(email:str, roomId:str):
                 "date" : datetime.fromtimestamp(booking.get("booking_date")).date(),
                 "room" : room.get("name"),
                 "number" : room.get("number"),
-                "time" : booking.get("booking_time")
+                "start" : booking.get("start"),
+                "end" : booking.get("end")
             }
         )
     return bookings
@@ -110,7 +111,8 @@ async def getBookingsByEmail( email: str ):
                     "date" : datetime.fromtimestamp(booking.get("booking_date")).date(),
                     "room" : room.get("name"),
                     "number" : room.get("number"),
-                    "time" : booking.get("booking_time")
+                    "start" : booking.get("start"),
+                    "end" : booking.get("end")
                 }
             )
     except:
@@ -206,27 +208,47 @@ async def bookRoom(request: Request):
 
 
 # -------------------------------------------------------------------------------------------------#
-@app.get("/available-rooms/{date}", response_class=JSONResponse)
-async def checkRoomAvailability(request: Request, date:str):
+@app.get("/available-rooms/{date}/{entryTime}/{checkoutTime}", response_class=JSONResponse)
+async def checkRoomAvailability(request: Request, date:str, entryTime:str, checkoutTime:str ):
     id_token =  request.cookies.get("token")
 
     user_token = validateFirebaseToken(id_token)
     if not user_token:
         return RedirectResponse('/')
     
-    booked_roomIds = []
-    formatted_date = datetime.strptime(date, "%Y-%m-%d").timestamp()
-    bookings = firestore_db.collection('bookings').where("booking_date", "==", formatted_date).get()
-    for booked_rooms in bookings:
-        booked_roomIds.append(booked_rooms.get("roomId"))
+    startTime = int(entryTime)
+    endTime = int(checkoutTime)
+    dateObj = datetime.strptime(date, "%Y-%m-%d").date()
+    currentDate = datetime.today().date()
+    
+    if dateObj < currentDate :
+        return JSONResponse([], status_code=200)
+    
+    if startTime >= endTime:
+        return JSONResponse([], status_code=200)
     
     available_rooms = []
+    booked_rooms = []
+    clashedRooms = set()
+    bookings = firestore_db.collection('bookings').where("booking_date", "==", datetime.strptime(date, "%Y-%m-%d").timestamp()).get()
+    for booked_room in bookings:
+        booked_rooms.append(booked_room.to_dict())
+
+    for booking in booked_rooms:
+        booking_start = int(booking["start"])
+        booking_end = int(booking["end"])
+
+        if (startTime >= booking_start and startTime < booking_end) or \
+           (endTime > booking_start and endTime <= booking_end) or \
+           (startTime <= booking_start and endTime >= booking_end):
+            clashedRooms.add(booking["roomId"])
+
     all_rooms = firestore_db.collection("rooms").get()
 
     for room_doc in all_rooms:
         room_data = room_doc.to_dict()
         room_id = room_doc.id
-        if room_id not in booked_roomIds:
+        if room_id not in clashedRooms:
             available_rooms.append({"id": room_id, "name": f"{room_data.get('name')} {room_data.get('number')}"})
 
     return JSONResponse(available_rooms, status_code=200)
@@ -246,7 +268,8 @@ async def bookRoom(request: Request):
     booking_data = {
         "booked_by" : user_token["email"],
         "booking_date" : datetime.strptime(form["booking-date"], "%Y-%m-%d").timestamp(),
-        "booking_time" : form["booking-time"],
+        "start" : form["booking-start"],
+        "end" : form["booking-end"],
         "roomId" : form["select-room"]
     }
 
@@ -293,7 +316,8 @@ async def roomDetails(request: Request, roomId:str):
                     "id" : booking.id,
                     "booked_by" : booking.get("booked_by"),
                     "date" : datetime.fromtimestamp(booking.get("booking_date")).date(),
-                    "time" : booking.get("booking_time"),
+                    "start" : booking.get("start"),
+                    "end" : booking.get("end"),
                     "booked_by" : booking.get("booked_by")
                 }
             )
@@ -313,7 +337,8 @@ async def updateBooking(request : Request, bookingId : str):
     room = firestore_db.collection('rooms').document(data.get('roomId')).get()
     formatted_data = {
         'date' : datetime.fromtimestamp(data.get("booking_date")).date(),
-        'time' : data.get("booking_time"),
+        'start' : int(data.get("start")),
+        'end' : int(data.get("end")),
         'room' : f'{room.to_dict().get("name")} {room.to_dict().get("number")}',
         'roomId' : room.id,
         'id' : bookingId
@@ -336,7 +361,8 @@ async def updateBooking(request : Request, bookingId : str):
     booking_data = {
         "booked_by" : user_token["email"],
         "booking_date" : datetime.strptime(form["booking-date"], "%Y-%m-%d").timestamp(),
-        "booking_time" : form["booking-time"],
+        "start" : form["booking-start"],
+        "end" : form["booking-end"],
         "roomId" : form["select-room"]
     }
 

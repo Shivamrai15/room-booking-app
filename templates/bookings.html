@@ -75,7 +75,8 @@
                     {% for booking in bookings %}
                         <div class="booking-card">
                             <p>Booking Date: {{ booking.date }}</p>
-                            <p>Time: {{ booking.time }}</p>
+                            <p>Entry Time: {{ booking.start }}:00</p>
+                            <p>Checkout Time: {{ booking.end }}:00</p>
                             <p>Booked By: {{ booking.booked_by }}</p>
                         </div>
                     {% endfor %}
