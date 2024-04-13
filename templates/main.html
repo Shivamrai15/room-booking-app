@@ -108,6 +108,7 @@
         </button>
     </div>
     <div class="room-container">
+        <hr/>
         <h2>Rooms</h2>
         <div id="room-cards">
             {% for room in rooms %}
@@ -126,9 +127,11 @@
             {% endfor %}
         </div>
     </div>
+    
     {% if user_token %}
         {% if bookings %}
             <div class="room-container">
+                <hr/>
                 <h2>Your Bookings</h2>
                 <div id="room-cards">
                     {% for booking in bookings %}

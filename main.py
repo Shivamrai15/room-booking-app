@@ -33,21 +33,9 @@ async def root( request : Request ) :
     if not user_token:
         return templets.TemplateResponse('main.html', { 'request' : request, 'user_token' : None , 'error_message' : error_message, 'user_info': None, "rooms" : rooms })
     
-    user = getUser(user_token)
     bookings, error_message = await getBookingsByEmail(user_token["email"])
-    return templets.TemplateResponse('main.html', { 'request' : request, 'user_token' : user_token , 'error_message' : error_message, 'user_info': user.get(), "rooms" : rooms, "bookings" : bookings })
+    return templets.TemplateResponse('main.html', { 'request' : request, 'user_token' : user_token , 'error_message' : error_message, "rooms" : rooms, "bookings" : bookings })
 
-
-
-def getUser(user_token) :
-    user = firestore_db.collection('users').document(user_token['user_id'])
-    if not user.get().exists:
-        user_data = {
-            'name' : 'No name yet',
-            'age' : 0
-        }
-        firestore_db.collection('users').document(user_token['user_id']).set(user_data)
-    return user
 
 
 def validateFirebaseToken(id_token):
@@ -260,15 +248,21 @@ async def deleteBooking( request : Request, bookingId: str ):
 
 @app.get("/room/bookings/{roomId}", response_class=HTMLResponse)
 async def roomDetails(request: Request, roomId:str):
+
     bookings = []
-    booking_obj = firestore_db.collection('bookings').where("roomId", "==", roomId).get()
+    filter_date = request.query_params.get('date')
+    if ( filter_date ) :
+        timestamp = datetime.strptime(filter_date, "%Y-%m-%d").timestamp()
+        booking_obj = firestore_db.collection('bookings').where("roomId", "==", roomId).where("booking_date", "==", timestamp).get()
+    else :
+        booking_obj = firestore_db.collection('bookings').where("roomId", "==", roomId).get()
     
     if len(booking_obj) == 0 :
-        return templets.TemplateResponse('bookings.html', { 'request' : request, 'error' : None, 'bookings': None})
+        return templets.TemplateResponse('bookings.html', { 'request' : request, 'error' : None, 'bookings': None, "roomId" : roomId })
 
     for booking in booking_obj:
         bookings.append(
-                {
+                { 
                     "id" : booking.id,
                     "booked_by" : booking.get("booked_by"),
                     "date" : datetime.fromtimestamp(booking.get("booking_date")).date(),
@@ -276,7 +270,7 @@ async def roomDetails(request: Request, roomId:str):
                     "booked_by" : booking.get("booked_by")
                 }
             )
-    return templets.TemplateResponse('bookings.html', { 'request' : request, 'error' : None, 'bookings': bookings})
+    return templets.TemplateResponse('bookings.html', { 'request' : request, 'error' : None, "roomId" : roomId ,'bookings': bookings})
 
 # -------------------------------------------------------------------------------------------------#
 
