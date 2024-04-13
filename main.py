@@ -158,12 +158,15 @@ async def postCreateRoom(request : Request):
     if (not form['room']) or (not form['room-number']):
         return templets.TemplateResponse('room.html', { 'request' : request, 'error' : "Room name and room number required" })
 
+
     room_data = {
         "name" : form["room"],
         "number" : int(form["room-number"]),
         "createdBy" : user_token["email"],
     }
-    room = firestore_db.collection('rooms').document().set(room_data)
+    existingRoom = firestore_db.collection('rooms').where("name", "==", room_data.get("name")).where("number", "==", room_data.get("number")).get()
+    if len(existingRoom) == 0:
+        room = firestore_db.collection('rooms').document().set(room_data)
     return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
     
 # -------------------------------------------------------------------------------------------------#
