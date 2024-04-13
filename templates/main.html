@@ -91,6 +91,18 @@
             padding: 10px;
             margin-top: 14px;
         }
+        .filter-btn {
+            width: 100%;
+            background: #b60101;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 10px;
+            margin-top: 14px;
+        }
         a {
             text-decoration: none;
             color: #3a3a3a;
@@ -101,8 +113,10 @@
 <body>
     <div class="nav">
         <a class="primary-link" href="/login" hidden="true" id="login-href" > Login </a>
-        <a class="primary-link" href="/create-room" id="room-href" > Create Room </a>
-        <a class="primary-link" href="/book-room" id="book-href" > Book A Room </a>
+        {% if user_token %}
+            <a class="primary-link" href="/create-room" id="room-href" > Create Room </a>
+            <a class="primary-link" href="/book-room" id="book-href" > Book A Room </a>
+        {% endif %}
         <button class="primary-btn" id="sign-out" hidden="true" >
             LogOut 
         </button>
@@ -127,7 +141,34 @@
             {% endfor %}
         </div>
     </div>
-    
+    {% if user_token %}
+        <div class="room-container">
+            <hr/>
+            <h2>Your bookings in a specific room</h2>
+            <form action="/" method="get">
+                <select name="roomId" id="roomId" required >
+                    {% for room in rooms %}
+                        <option value="{{room.id}}" >{{ room.name }} {{ room.number }}</option>
+                    {% endfor %}
+                </select>
+                <button class="filter-btn" >
+                    Apply Filter
+                </button>
+            </form>
+            {% if specific_bookings %}
+                <div id="room-cards">
+                    {% for booking in specific_bookings %}
+                        <div class="room-card">
+                            <h3>Room Name: {{ booking.room }}</h3>
+                            <p>Room Number: {{ booking.number }}</p>
+                            <p>Booking: {{ booking.date }}</p>
+                            <p>Time: {{ booking.time }}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
     {% if user_token %}
         {% if bookings %}
             <div class="room-container">

@@ -24,7 +24,6 @@ async def root( request : Request ) :
     id_token = request.cookies.get("token")
     error_message = "No error here"
     user_token = None
-    user = None
 
     user_token = validateFirebaseToken(id_token)
 
@@ -34,7 +33,13 @@ async def root( request : Request ) :
         return templets.TemplateResponse('main.html', { 'request' : request, 'user_token' : None , 'error_message' : error_message, 'user_info': None, "rooms" : rooms })
     
     bookings, error_message = await getBookingsByEmail(user_token["email"])
-    return templets.TemplateResponse('main.html', { 'request' : request, 'user_token' : user_token , 'error_message' : error_message, "rooms" : rooms, "bookings" : bookings })
+    roomId = request.query_params.get('roomId')
+    if roomId :
+        specific_bookings = await getBookingsOfSpecificRoom(user_token["email"], roomId)
+        print(specific_bookings)
+        return templets.TemplateResponse('main.html', { 'request' : request, 'user_token' : user_token , 'error_message' : error_message, "rooms" : rooms, "bookings" : bookings, "specific_bookings": specific_bookings })
+
+    return templets.TemplateResponse('main.html', { 'request' : request, 'user_token' : user_token , 'error_message' : error_message, "rooms" : rooms, "bookings" : bookings , "specific_bookings" : None })
 
 
 
@@ -70,6 +75,25 @@ async def getRooms( ):
     except :
         error_message = "Internal server error"
     return rooms, error_message
+
+async def getBookingsOfSpecificRoom(email:str, roomId:str):
+    bookings = []
+    ref = firestore_db.collection('bookings').where("booked_by", "==", email).where("roomId", "==" , roomId)
+    snapshot = ref.get()
+    for booking in snapshot:
+        room = firestore_db.collection('rooms').document(booking.get("roomId")).get().to_dict()
+        bookings.append(
+            {
+                "id" : booking.id,
+                "booked_by" : booking.get("booked_by"),
+                "date" : datetime.fromtimestamp(booking.get("booking_date")).date(),
+                "room" : room.get("name"),
+                "number" : room.get("number"),
+                "time" : booking.get("booking_time")
+            }
+        )
+    return bookings
+
 
 async def getBookingsByEmail( email: str ):
     error_message = ""
